@@ -11,7 +11,6 @@ st.set_page_config(page_title="Peni di Merito", layout="centered")
 
 DATA_FILE = "dati_peni.json"
 DENSITA_TESSUTO = 1.05  # g/cm³
-OWNER_GITHUB_USERNAME = "Einaudini"  # Sostituisci con il tuo username GitHub
 DEBUG_MODE = False  # Imposta a True per testare in locale come admin
 
 # ------------------ FUNZIONI ------------------
@@ -35,14 +34,8 @@ def calcola_peso(volume):
 def is_admin():
     if DEBUG_MODE:
         return True
-    try:
-        ctx = get_script_run_ctx()
-        username = getattr(getattr(ctx, "session", None), "user", None)
-        if username and getattr(username, "username", None) == OWNER_GITHUB_USERNAME:
-            return True
-    except Exception:
-        pass
-    return False
+    password = st.session_state.get("admin_password", None)
+    return password == st.secrets.get("admin_password")
 
 # ------------------ HEADER ------------------
 st.markdown("## 📊 Peni di Merito")
@@ -57,7 +50,7 @@ with st.form("inserimento_dati", clear_on_submit=True):
     with col2:
         lunghezza = st.number_input("Lunghezza (cm)", min_value=2.0, max_value=30.0, step=0.1)
 
-    submitted = st.form_submit_button("📥 Invia")
+    submitted = st.form_submit_button("📅 Invia")
 
     if submitted:
         dati = carica_dati()
@@ -89,12 +82,12 @@ if dati:
     col1, col2, col3 = st.columns(3)
     col1.metric("📏 Lunghezza max", f"{max_row['lunghezza']} cm")
     col2.metric("⚪ Diametro max", f"{max_row['diametro']} cm")
-    col3.metric("🛆 Volume max", f"{max_row['volume']:.2f} cm³")
+    col3.metric("🗆 Volume max", f"{max_row['volume']:.2f} cm³")
 
     col4, col5, col6 = st.columns(3)
     col4.metric("📏 Lunghezza min", f"{min_row['lunghezza']} cm")
     col5.metric("⚪ Diametro min", f"{min_row['diametro']} cm")
-    col6.metric("🛆 Volume min", f"{min_row['volume']:.2f} cm³")
+    col6.metric("🗆 Volume min", f"{min_row['volume']:.2f} cm³")
 
     st.markdown("### ⚖️ Peso medio stimato")
     st.metric("Peso medio globale", f"{peso_medio:.2f} g")
@@ -130,6 +123,16 @@ if dati:
     st.plotly_chart(fig, use_container_width=True)
 else:
     st.info("Non sono ancora stati inseriti dati.")
+
+# ------------------ LOGIN ADMIN ------------------
+if "admin_password" not in st.session_state:
+    st.session_state.admin_password = ""
+
+with st.expander("🔐 Login Admin"):
+    password_input = st.text_input("Inserisci password admin", type="password")
+    if st.button("Login"):
+        st.session_state.admin_password = password_input
+        st.experimental_rerun()
 
 # ------------------ ADMIN PANEL ------------------
 if is_admin():

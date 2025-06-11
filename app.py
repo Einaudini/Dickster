@@ -7,7 +7,7 @@ import plotly.express as px
 from streamlit.runtime.scriptrunner import get_script_run_ctx
 
 # ------------------ CONFIG ------------------
-st.set_page_config(page_title="Statistiche Anatomiche", layout="centered")
+st.set_page_config(page_title="Peni di Merito", layout="centered")
 
 DATA_FILE = "dati_peni.json"
 DENSITA_TESSUTO = 1.05  # g/cm³
@@ -36,7 +36,7 @@ def is_admin():
     return ctx is not None and ctx.session.user is not None and ctx.session.user.username == OWNER_GITHUB_USERNAME
 
 # ------------------ HEADER ------------------
-st.markdown("## 📊 Statistiche Anatomiche")
+st.markdown("## 📊 Peni di Merito")
 st.markdown("Inserisci i tuoi dati anatomici in forma anonima e visualizza le statistiche aggregate per etnia.")
 
 # ------------------ INPUT ------------------

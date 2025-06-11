@@ -1,3 +1,4 @@
 plotly==6.1.2
 streamlit==1.45.1
 numpy==2.3.0
+scipy

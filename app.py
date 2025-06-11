@@ -11,7 +11,8 @@ st.set_page_config(page_title="Peni di Merito", layout="centered")
 
 DATA_FILE = "dati_peni.json"
 DENSITA_TESSUTO = 1.05  # g/cm³
-OWNER_GITHUB_USERNAME = "tuo-username-github"  # Sostituisci con il tuo username GitHub
+OWNER_GITHUB_USERNAME = "Einaudini"  # Sostituisci con il tuo username GitHub
+DEBUG_MODE = False  # Imposta a True per testare in locale come admin
 
 # ------------------ FUNZIONI ------------------
 def carica_dati():
@@ -32,8 +33,16 @@ def calcola_peso(volume):
     return volume * DENSITA_TESSUTO
 
 def is_admin():
-    ctx = get_script_run_ctx()
-    return ctx is not None and ctx.session.user is not None and ctx.session.user.username == OWNER_GITHUB_USERNAME
+    if DEBUG_MODE:
+        return True
+    try:
+        ctx = get_script_run_ctx()
+        username = getattr(getattr(ctx, "session", None), "user", None)
+        if username and getattr(username, "username", None) == OWNER_GITHUB_USERNAME:
+            return True
+    except Exception:
+        pass
+    return False
 
 # ------------------ HEADER ------------------
 st.markdown("## 📊 Peni di Merito")

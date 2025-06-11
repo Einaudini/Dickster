@@ -4,14 +4,14 @@ import os
 import math
 import pandas as pd
 import plotly.express as px
-from streamlit.runtime.scriptrunner import get_script_run_ctx
 
 # ------------------ CONFIG ------------------
 st.set_page_config(page_title="Peni di Merito", layout="centered")
 
 DATA_FILE = "dati_peni.json"
 DENSITA_TESSUTO = 1.05  # g/cm³
-DEBUG_MODE = False  # Imposta a True per testare in locale come admin
+DEBUG_MODE = False  # Imposta True per testare in locale come admin
+DEFAULT_ADMIN_PASSWORD = "pene123"
 
 # ------------------ FUNZIONI ------------------
 def carica_dati():
@@ -35,7 +35,7 @@ def is_admin():
     if DEBUG_MODE:
         return True
     password = st.session_state.get("admin_password", None)
-    return password == st.secrets.get("admin_password")
+    return password == DEFAULT_ADMIN_PASSWORD
 
 # ------------------ HEADER ------------------
 st.markdown("## 📊 Peni di Merito")
@@ -50,7 +50,7 @@ with st.form("inserimento_dati", clear_on_submit=True):
     with col2:
         lunghezza = st.number_input("Lunghezza (cm)", min_value=2.0, max_value=30.0, step=0.1)
 
-    submitted = st.form_submit_button("🗕️ Invia")
+    submitted = st.form_submit_button("📅 Invia")
 
     if submitted:
         dati = carica_dati()
@@ -82,12 +82,12 @@ if dati:
     col1, col2, col3 = st.columns(3)
     col1.metric("📏 Lunghezza max", f"{max_row['lunghezza']} cm")
     col2.metric("⚪ Diametro max", f"{max_row['diametro']} cm")
-    col3.metric("🟖 Volume max", f"{max_row['volume']:.2f} cm³")
+    col3.metric("🗆 Volume max", f"{max_row['volume']:.2f} cm³")
 
     col4, col5, col6 = st.columns(3)
     col4.metric("📏 Lunghezza min", f"{min_row['lunghezza']} cm")
     col5.metric("⚪ Diametro min", f"{min_row['diametro']} cm")
-    col6.metric("🟖 Volume min", f"{min_row['volume']:.2f} cm³")
+    col6.metric("🗆 Volume min", f"{min_row['volume']:.2f} cm³")
 
     st.markdown("### ⚖️ Peso medio stimato")
     st.metric("Peso medio globale", f"{peso_medio:.2f} g")

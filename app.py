@@ -48,7 +48,7 @@ with st.form("inserimento_dati", clear_on_submit=True):
         diametro = st.number_input("Diametro (cm)", min_value=1.0, max_value=10.0, step=0.1)
         etnia = st.selectbox("Etnia", ["Caucasica", "Africana", "Asiatica", "Latina", "Mediorientale", "Altro"])
     with col2:
-        lunghezza = st.number_input("Lunghezza (cm)", min_value=2.0, max_value=30.0, step=0.1)
+        lunghezza = st.number_input("Lunghezza (cm)", min_value=2.0, max_value=50.0, step=0.1)
 
     submitted = st.form_submit_button("📅 Invia")
 

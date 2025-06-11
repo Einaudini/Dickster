@@ -3,15 +3,15 @@ import json
 import os
 import math
 import pandas as pd
-import plotly.figure_factory as ff
+import numpy as np
+import plotly.graph_objects as go
 
 # ------------------ CONFIG ------------------
 st.set_page_config(page_title="Peni di Merito", layout="centered")
 
 DATA_FILE = "dati_peni.json"
 DENSITA_TESSUTO = 1.05  # g/cm³
-DEBUG_MODE = False  # Imposta True per testare in locale come admin
-DEFAULT_ADMIN_PASSWORD = "pene123"
+DEBUG_MODE = False  # Imposta a True per testare in locale come admin
 
 # ------------------ FUNZIONI ------------------
 def carica_dati():
@@ -35,7 +35,8 @@ def is_admin():
     if DEBUG_MODE:
         return True
     password = st.session_state.get("admin_password", None)
-    return password == DEFAULT_ADMIN_PASSWORD
+    # Password di default "pene123"
+    return password == st.secrets.get("admin_password", "pene123")
 
 # ------------------ HEADER ------------------
 st.markdown("## 📊 Peni di Merito")
@@ -98,7 +99,7 @@ if dati:
     col8.metric("Peso (σ)", f"{dev_std_peso:.2f} g")
 
     st.markdown("---")
-    st.markdown("### 🎨 Visualizzazione per etnia")
+    st.markdown("### 🎨 Visualizzazione distribuzione lunghezza")
 
     etnie = df["etnia"].unique().tolist()
     etnia_selezionata = st.selectbox("Filtro etnia", ["Tutte"] + etnie)
@@ -108,12 +109,35 @@ if dati:
     else:
         df_filtrato = df
 
-    volumi = df_filtrato["volume"].values
+    # Estrai le lunghezze
+    lunghezze = df_filtrato["lunghezza"].values
 
-    fig = ff.create_distplot([volumi], group_labels=['Volume'], show_hist=True, show_rug=False, colors=['#636EFA'])
-    fig.update_layout(title_text="Distribuzione Gaussiana del Volume", xaxis_title="Volume (cm³)", yaxis_title="Densità")
+    # Calcola i bin con intervallo 1 cm, dai min ai max arrotondati
+    min_len = int(np.floor(lunghezze.min()))
+    max_len = int(np.ceil(lunghezze.max()))
+    bins = np.arange(min_len, max_len + 2, 1)  # +2 per includere l'ultimo intervallo
+
+    # Crea istogramma con Plotly
+    fig = go.Figure(data=[go.Histogram(
+        x=lunghezze,
+        xbins=dict(
+            start=min_len,
+            end=max_len + 1,
+            size=1
+        ),
+        marker_color='#636EFA',
+        opacity=0.75
+    )])
+
+    fig.update_layout(
+        title="Distribuzione della Lunghezza (bin da 1 cm)",
+        xaxis_title="Lunghezza (cm)",
+        yaxis_title="Numero di campioni",
+        bargap=0.1
+    )
 
     st.plotly_chart(fig, use_container_width=True)
+
 else:
     st.info("Non sono ancora stati inseriti dati.")
 

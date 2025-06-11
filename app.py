@@ -3,7 +3,7 @@ import json
 import os
 import math
 import pandas as pd
-import plotly.express as px
+import plotly.figure_factory as ff
 
 # ------------------ CONFIG ------------------
 st.set_page_config(page_title="Peni di Merito", layout="centered")
@@ -48,7 +48,7 @@ with st.form("inserimento_dati", clear_on_submit=True):
         diametro = st.number_input("Diametro (cm)", min_value=1.0, max_value=10.0, step=0.1)
         etnia = st.selectbox("Etnia", ["Caucasica", "Africana", "Asiatica", "Latina", "Mediorientale", "Altro"])
     with col2:
-        lunghezza = st.number_input("Lunghezza (cm)", min_value=2.0, max_value=50.0, step=0.1)
+        lunghezza = st.number_input("Lunghezza (cm)", min_value=2.0, max_value=30.0, step=0.1)
 
     submitted = st.form_submit_button("📅 Invia")
 
@@ -108,18 +108,11 @@ if dati:
     else:
         df_filtrato = df
 
-    df_filtrato = df_filtrato.reset_index(drop=True)
-    df_filtrato["Utente"] = df_filtrato.index + 1
+    volumi = df_filtrato["volume"].values
 
-    fig = px.bar(
-        df_filtrato,
-        x="Utente",
-        y="volume",
-        color="etnia" if etnia_selezionata == "Tutte" else None,
-        labels={"volume": "Volume (cm³)", "Utente": "Utente"},
-        title="Distribuzione dei volumi",
-        color_discrete_sequence=px.colors.qualitative.Set2
-    )
+    fig = ff.create_distplot([volumi], group_labels=['Volume'], show_hist=True, show_rug=False, colors=['#636EFA'])
+    fig.update_layout(title_text="Distribuzione Gaussiana del Volume", xaxis_title="Volume (cm³)", yaxis_title="Densità")
+
     st.plotly_chart(fig, use_container_width=True)
 else:
     st.info("Non sono ancora stati inseriti dati.")
@@ -132,7 +125,7 @@ with st.expander("🔐 Login Admin"):
     password_input = st.text_input("Inserisci password admin", type="password")
     if st.button("Login"):
         st.session_state.admin_password = password_input
-        st.rerun()
+        st.experimental_rerun()
 
 # ------------------ ADMIN PANEL ------------------
 if is_admin():
